@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>PatriFlow — Portefeuille</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#718096;--line:#e7ebf2;--blue:#315efb;--green:#18a873;--red:#e15b64}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+button,input{font:inherit}.app{min-height:100vh;display:flex}.sidebar{width:230px;background:#111827;color:#fff;padding:22px 15px;flex:none}.logo{font-weight:800;font-size:23px;padding:8px 12px 25px}.logo span{color:#79a0ff}.nav{padding:12px 14px;border-radius:10px;color:#cbd5e1;margin:4px 0;cursor:pointer}.nav.active,.nav:hover{background:#202b3e;color:#fff}.main{width:100%;max-width:1450px;margin:auto;padding:24px}.top{display:flex;align-items:center;gap:16px;margin-bottom:25px}.search{position:relative;flex:1}.search input{width:100%;border:1px solid var(--line);background:#fff;border-radius:13px;padding:14px 17px;outline:0}.search input:focus{border-color:#9bb2ff;box-shadow:0 0 0 3px #dfe7ff}.suggestions{display:none;position:absolute;left:0;right:0;top:54px;background:#fff;border:1px solid var(--line);border-radius:13px;box-shadow:0 18px 45px #17203325;z-index:20;overflow:hidden}.suggestion{padding:13px 16px;display:flex;gap:12px;align-items:center;cursor:pointer}.suggestion:hover{background:#f5f7fb}.ticker{font-size:12px;color:var(--muted)}.avatar{width:42px;height:42px;border-radius:50%;background:#dfe7ff;color:var(--blue);display:grid;place-items:center;font-weight:800}.hello{font-size:28px;margin:0 0 18px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:0 5px 18px #17203308}.label{font-size:13px;color:var(--muted)}.big{font-size:28px;font-weight:800;margin:7px 0}.green{color:var(--green)}.wide{grid-column:span 3}.allocation{grid-column:span 1}.chart{height:235px;margin-top:15px}.chart svg{width:100%;height:100%}.periods{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.period{border:0;background:#eef2f8;color:#617087;padding:8px 12px;border-radius:9px;cursor:pointer}.period.active{background:var(--ink);color:#fff}.row{display:flex;justify-content:space-between;gap:15px;align-items:center}.bar{height:9px;background:#e9edf4;border-radius:99px;overflow:hidden;margin:8px 0 15px}.fill{height:100%;background:var(--blue)}.section{margin-top:20px}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:650px}.table th,.table td{text-align:left;padding:13px 8px;border-bottom:1px solid var(--line);font-size:14px}.empty{text-align:center;padding:35px;color:var(--muted)}.primary{border:0;background:var(--ink);color:#fff;padding:11px 15px;border-radius:10px;font-weight:700;cursor:pointer}.primary:hover{opacity:.9}
+.modal-back{position:fixed;inset:0;background:#11182780;display:none;align-items:center;justify-content:center;z-index:50;padding:16px}.modal{width:min(470px,100%);background:#fff;border-radius:20px;padding:23px;box-shadow:0 30px 80px #0004}.modal h2{margin:0 0 5px}.modal label{display:block;font-size:13px;color:var(--muted);margin:13px 0 5px}.modal input{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px}.actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.secondary{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}.toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:#172033;color:#fff;padding:11px 15px;border-radius:11px;display:none;z-index:100}
+@media(max-width:900px){.sidebar{display:none}.grid{grid-template-columns:1fr 1fr}.wide,.allocation{grid-column:span 2}.main{padding:18px}}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.wide,.allocation{grid-column:span 1}.main{padding:14px}.hello{font-size:25px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="logo">Patri<span>Flow</span></div>
+  <div class="nav active">🏠 Tableau de bord</div><div class="nav">📈 Portefeuille</div><div class="nav">📊 Performance</div><div class="nav">🎯 Objectifs</div><div class="nav">⚙️ Profil</div>
+</aside>
+<main class="main">
+  <div class="top">
+    <div class="search">
+      <input id="search" placeholder="🔎 Rechercher une action ou un ETF…" autocomplete="off">
+      <div id="suggestions" class="suggestions"></div>
+    </div>
+    <div class="avatar">M</div>
+  </div>
+  <h1 class="hello">Bonjour Maxime 👋</h1>
+
+  <div class="grid">
+    <div class="card"><div class="label">Patrimoine investi</div><div class="big" id="total">0 €</div><div class="green" id="gain">+0 €</div></div>
+    <div class="card"><div class="label">Performance</div><div class="big green" id="perf">+0,0 %</div><div class="label">Depuis le début de l'année</div></div>
+    <div class="card"><div class="label">Versements</div><div class="big" id="contrib">0 €</div><div class="label">Cette année</div></div>
+    <div class="card"><div class="label">Objectif</div><div class="big">100 000 €</div><div class="label" id="goalPct">0 % atteint</div></div>
+
+    <div class="card wide">
+      <div class="row"><div><div class="label">Évolution du patrimoine</div><div class="big" id="periodReturn">+0,0 %</div></div><div class="label">vs S&amp;P 500 : <span class="green" id="benchmark">+0,0 %</span></div></div>
+      <div class="chart"><svg viewBox="0 0 800 235" preserveAspectRatio="none">
+        <polyline fill="none" stroke="#315efb" stroke-width="4" points="0,200 70,187 140,193 210,157 280,174 350,128 420,140 490,99 560,110 630,62 700,77 800,37"/>
+        <polyline fill="none" stroke="#aeb8c9" stroke-width="3" stroke-dasharray="7 7" points="0,200 70,192 140,179 210,166 280,153 350,141 420,126 490,113 560,99 630,86 700,71 800,58"/>
+      </svg></div>
+      <div class="periods" id="periods"><button class="period">1J</button><button class="period">1S</button><button class="period">1M</button><button class="period active">YTD</button><button class="period">1A</button><button class="period">5A</button><button class="period">Tout</button></div>
+    </div>
+
+    <div class="card allocation">
+      <div class="label">Allocation</div><div class="big">Votre portefeuille</div>
+      <div class="row"><span>ETF</span><b id="etfPct">0 %</b></div><div class="bar"><div class="fill" id="etfBar" style="width:0%"></div></div>
+      <div class="row"><span>Actions</span><b id="stockPct">0 %</b></div><div class="bar"><div class="fill" id="stockBar" style="width:0%"></div></div>
+      <div class="label" style="margin-top:18px">Benchmark</div><div class="row" style="margin-top:7px"><span>S&amp;P 500</span><b id="benchmark2">—</b></div>
+    </div>
+  </div>
+
+  <div class="card section">
+    <div class="row"><div><h2 style="margin:0">Votre portefeuille</h2><div class="label">Ajoutez vos actions et ETF depuis la recherche ou le bouton ci-dessous. Les cours sont actualisés automatiquement.</div></div><button class="primary" id="addBtn">+ Ajouter un actif</button></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>Actif</th><th>Quantité</th><th>PRU</th><th>Valeur investie</th><th>Valeur actuelle</th><th>Performance</th></tr></thead><tbody id="body"></tbody></table></div>
+  </div>
+</main>
+</div>
+
+<div class="modal-back" id="back">
+ <div class="modal">
+  <h2 id="modalTitle">Ajouter un actif</h2><div class="label" id="modalSub">Sélectionne une action ou un ETF.</div>
+  <label>Quantité</label><input id="qty" type="number" min="0" step="0.0001" placeholder="5">
+  <label>Prix d'achat unitaire (€)</label><input id="price" type="number" min="0" step="0.01" placeholder="180">
+  <label>Date d'achat</label><input id="date" type="date">
+  <div class="actions"><button class="secondary" id="cancel">Annuler</button><button class="primary" id="save">Ajouter au portefeuille</button></div>
+ </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* PatriFlow V2 — live prices for prototype use.
+   Data source: Yahoo Finance chart endpoint through CORS proxy.
+   This is intentionally a prototype integration; a production app should use its own backend/data provider. */
+const catalog=[
+ {name:"Apple",ticker:"AAPL",yahoo:"AAPL",type:"Action",currency:"USD"},
+ {name:"Microsoft",ticker:"MSFT",yahoo:"MSFT",type:"Action",currency:"USD"},
+ {name:"Alphabet",ticker:"GOOGL",yahoo:"GOOGL",type:"Action",currency:"USD"},
+ {name:"Amazon",ticker:"AMZN",yahoo:"AMZN",type:"Action",currency:"USD"},
+ {name:"Meta Platforms",ticker:"META",yahoo:"META",type:"Action",currency:"USD"},
+ {name:"NVIDIA",ticker:"NVDA",yahoo:"NVDA",type:"Action",currency:"USD"},
+ {name:"Tesla",ticker:"TSLA",yahoo:"TSLA",type:"Action",currency:"USD"},
+ {name:"S&P 500 ETF",ticker:"CSPX",yahoo:"CSPX.L",type:"ETF",currency:"USD"},
+ {name:"Nasdaq 100 ETF",ticker:"EQQQ",yahoo:"EQQQ.L",type:"ETF",currency:"USD"},
+ {name:"MSCI World ETF",ticker:"CW8",yahoo:"CW8.PA",type:"ETF",currency:"EUR"},
+ {name:"Stoxx Europe 50",ticker:"SX5E",yahoo:"SX5E.PA",type:"ETF",currency:"EUR"}
+];
+
+const PROXY="https://corsproxy.io/?url=";
+const YAHOO="https://query1.finance.yahoo.com/v8/finance/chart/";
+let portfolio=JSON.parse(localStorage.getItem("patriflow_portfolio")||"[]");
+let selected=null;
+let prices={};
+let eurRates={USD:null,GBP:null};
+const $=id=>document.getElementById(id);
+function euro(n){return Number(n||0).toLocaleString("fr-FR",{style:"currency",currency:"EUR",maximumFractionDigits:2})}
+function num(n,d=2){return Number(n||0).toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function showToast(msg){$("toast").textContent=msg;$("toast").style.display="block";clearTimeout(window.__toast);window.__toast=setTimeout(()=>$('toast').style.display="none",2400)}
+function openModal(asset){
+ selected=asset||null;
+ $("modalTitle").textContent=asset?"Ajouter "+asset.name:"Ajouter un actif";
+ $("modalSub").textContent=asset?(asset.ticker+" · "+asset.type):"Sélectionne une action ou un ETF.";
+ $("date").value=new Date().toISOString().slice(0,10);
+ $("back").style.display="flex";setTimeout(()=>$('qty').focus(),50);
+}
+function closeModal(){$("back").style.display="none";selected=null}
+function choose(asset){$("search").value=asset.name;$("suggestions").style.display="none";openModal(asset)}
+
+$("search").addEventListener("input",function(){
+ const q=this.value.trim().toLowerCase(), box=$("suggestions");box.innerHTML="";
+ if(!q){box.style.display="none";return}
+ const hits=catalog.filter(a=>(a.name+" "+a.ticker).toLowerCase().includes(q)).slice(0,8);
+ if(!hits.length)box.innerHTML='<div class="suggestion" style="cursor:default">Aucun actif trouvé</div>';
+ else hits.forEach(a=>{const d=document.createElement("div");d.className="suggestion";d.innerHTML='<div style="font-size:22px">📈</div><div><b>'+a.name+'</b><div class="ticker">'+a.ticker+" · "+a.type+" · "+a.currency+"</div></div>";d.addEventListener("click",()=>choose(a));box.appendChild(d)});
+ box.style.display="block";
+});
+$("search").addEventListener("keydown",e=>{if(e.key==="Enter"){const q=$("search").value.trim().toLowerCase();const a=catalog.find(x=>(x.name+" "+x.ticker).toLowerCase()===q)||catalog.find(x=>(x.name+" "+x.ticker).toLowerCase().startsWith(q));if(a)choose(a)}});
+document.addEventListener("click",e=>{if(!e.target.closest(".search"))$("suggestions").style.display="none"});
+$("addBtn").addEventListener("click",()=>{$("search").focus();$("search").value="";$('suggestions').innerHTML='<div class="suggestion" style="cursor:default"><div>🔎</div><div><b>Rechercher un actif</b><div class="ticker">Ex. Apple, Microsoft, S&amp;P 500…</div></div></div>';$('suggestions').style.display="block"});
+$("cancel").addEventListener("click",closeModal);
+$("back").addEventListener("click",e=>{if(e.target===$("back"))closeModal()});
+$("save").addEventListener("click",()=>{
+ if(!selected){showToast("Recherche d'abord un actif.");return}
+ const qty=Number($("qty").value),price=Number($("price").value),date=$("date").value;
+ if(!(qty>0)||!(price>0)||!date){showToast("Complète les trois champs.");return}
+ const old=portfolio.find(x=>x.ticker===selected.ticker);
+ if(old){const totalQty=old.qty+qty;old.price=(old.qty*old.price+qty*price)/totalQty;old.qty=totalQty;old.date=date}
+ else portfolio.push({name:selected.name,ticker:selected.ticker,yahoo:selected.yahoo,type:selected.type,currency:selected.currency,qty,price,date});
+ localStorage.setItem("patriflow_portfolio",JSON.stringify(portfolio));
+ closeModal();$("search").value="";render();showToast(selected.name+" ajouté au portefeuille.");
+ refreshPrices();
+});
+
+const periodValues={"1J":"+0,0 %","1S":"+0,0 %","1M":"+0,0 %","YTD":"+0,0 %","1A":"+0,0 %","5A":"+0,0 %","Tout":"+0,0 %"};
+document.querySelectorAll(".period").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".period").forEach(x=>x.classList.remove("active"));b.classList.add("active");$("periodReturn").textContent=periodValues[b.textContent]||"+0,0 %"}));
+
+async function fetchYahoo(symbol){
+ const target=YAHOO+encodeURIComponent(symbol)+"?range=1d&interval=1d";
+ const url=PROXY+encodeURIComponent(target);
+ const r=await fetch(url,{cache:"no-store"});
+ if(!r.ok)throw new Error("HTTP "+r.status);
+ const j=await r.json();
+ const result=j.chart&&j.chart.result&&j.chart.result[0];
+ if(!result)throw new Error("Pas de données");
+ const meta=result.meta||{};
+ const price=Number(meta.regularMarketPrice ?? meta.previousClose);
+ if(!Number.isFinite(price))throw new Error("Cours indisponible");
+ return {price,currency:meta.currency||null,marketTime:meta.regularMarketTime?new Date(meta.regularMarketTime*1000):null};
+}
+
+async function getEurRate(from){
+ if(from==="EUR")return 1;
+ if(eurRates[from])return eurRates[from];
+ const fx=await fetchYahoo("EUR"+from+"=X");
+ /* Yahoo gives 1 EUR in foreign currency. */
+ eurRates[from]=fx.price;
+ return fx.price;
+}
+async function toEUR(value,currency){
+ if(currency==="EUR")return value;
+ const rate=await getEurRate(currency);
+ return value/rate;
+}
+
+async function refreshPrices(){
+ if(!portfolio.length){render();return}
+ const unique=[...new Map(portfolio.map(a=>[a.yahoo||a.ticker,a])).values()];
+ let ok=0;
+ await Promise.all(unique.map(async a=>{
+   try{
+    const q=await fetchYahoo(a.yahoo||a.ticker);
+    prices[a.ticker]={...q};ok++;
+   }catch(e){console.warn("Prix indisponible",a.ticker,e)}
+ }));
+ try{await Promise.all(unique.filter(a=>prices[a.ticker]&&prices[a.ticker].currency&&prices[a.ticker].currency!=="EUR").map(a=>getEurRate(prices[a.ticker].currency)))}catch(e){console.warn(e)}
+ await render();
+ if(ok)showToast("Cours actualisés · "+ok+" actif(s)");
+ else showToast("Cours indisponibles pour le moment");
+}
+
+async function render(){
+ const body=$("body");body.innerHTML="";
+ let invested=0,current=0,stocks=0,etfs=0;
+ const rows=[];
+ for(const a of portfolio){
+  const inv=a.qty*a.price;invested+=inv;
+  const p=prices[a.ticker];
+  let cur=null;
+  if(p){try{cur=await toEUR(a.qty*p.price,p.currency||a.currency||"EUR")}catch(e){}}
+  if(cur!==null)current+=cur;
+  const allocationBase=cur!==null?cur:inv;
+  a.type==="ETF"?etfs+=allocationBase:stocks+=allocationBase;
+  rows.push({a,inv,cur});
+ }
+ for(const {a,inv,cur} of rows){
+  const perf=cur!==null?cur-inv:null, pct=cur!==null&&inv?perf/inv*100:null;
+  const perfText=pct===null?'<span class="label">Cours indisponible</span>':(perf>=0?'<span class="green">+'+euro(perf)+' ('+num(pct,2)+' %)</span>':'<span style="color:var(--red)">'+euro(perf)+' ('+num(pct,2)+' %)</span>');
+  const currentText=cur===null?'<span class="label">—</span>':euro(cur);
+  const tr=document.createElement("tr");
+  tr.innerHTML="<td><b>"+a.name+"</b><div class='ticker'>"+a.ticker+" · "+a.type+"</div></td><td>"+num(a.qty,4)+"</td><td>"+euro(a.price)+"</td><td>"+euro(inv)+"</td><td>"+currentText+"</td><td>"+perfText+"</td>";
+  body.appendChild(tr);
+ }
+ if(!portfolio.length)body.innerHTML='<tr><td colspan="6" class="empty">Aucun actif. Tape <b>Apple</b> dans la recherche ou utilise « + Ajouter un actif ».</td></tr>';
+ const gain=current-invested;
+ $("total").textContent=euro(current||invested);
+ $("contrib").textContent=euro(invested);
+ $("gain").textContent=(gain>=0?"+":"")+euro(gain)+" depuis les achats enregistrés";
+ $("gain").className=gain>=0?"green":"";
+ const performance=invested?gain/invested*100:0;
+ $("perf").textContent=(performance>=0?"+":"")+num(performance,1)+" %";
+ $("benchmark2").textContent=prices.__SP500?num(prices.__SP500.pct||0,1)+" %":"—";
+ const base=current||invested,ep=base?etfs/base*100:0,sp=base?stocks/base*100:0;
+ $("etfPct").textContent=num(ep,0)+" %";$("stockPct").textContent=num(sp,0)+" %";$("etfBar").style.width=ep+"%";$("stockBar").style.width=sp+"%";
+ $("goalPct").textContent=(Math.min((current||invested)/100000,1)*100).toFixed(0)+" % atteint";
+ $("periodReturn").textContent=(performance>=0?"+":"")+num(performance,1)+" %";
+}
+
+render();
+refreshPrices();
+})();
+</script>
+</body>
+</html>
